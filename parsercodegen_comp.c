@@ -1434,8 +1434,11 @@ void block()
     return;
 
   // Mark only this block's symbols so outer scopes remain visible
-  for (int i = blockStart; i < symbolTableCounter; i++)
-    symbolTable[i].mark = 1;
+  if (level > 0)
+  {
+    for (int i = blockStart; i < symbolTableCounter; i++)
+      symbolTable[i].mark = 1;
+  }
 }
 
 // Program
