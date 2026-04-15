@@ -1561,7 +1561,6 @@ void procedure_declaration()
     level--;
     if (errorFlag == 1)
       return;
-    // TODO mark everything
     emit(2, 0, 0);
     strcpy(nameOP_storage[nameOPcounter], "OPR");
     nameOPcounter++;
@@ -1575,4 +1574,4 @@ void procedure_declaration()
     getNextToken();
   }
 }
-// One note on addressing: The existing if/else backpatching uses cx * 3 while the while-loop JPC uses plain cx. The new JMP in block() uses cx (instruction index), matching how procedure addresses are already stored. If your VM turns out to expect cx * 3 for jump targets, change instructions[jmpIdx][2] = cx → cx * 3 and also update insertSymbolTable(3, …, cx * 3, …) in procedure_declaration.
+// TODO must emit CAL and RTN for procedure calls and procedure returns respectively.
