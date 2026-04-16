@@ -1434,9 +1434,10 @@ void block()
     return;
 
   // Mark only this block's symbols so outer scopes remain visible
-  if (level > 0)
+
+  for (int i = blockStart; i < symbolTableCounter; i++)
   {
-    for (int i = blockStart; i < symbolTableCounter; i++)
+    if (symbolTable[i].kind != 1) // don't mark constants
       symbolTable[i].mark = 1;
   }
 }
@@ -1574,4 +1575,31 @@ void procedure_declaration()
     getNextToken();
   }
 }
-// TODO must emit CAL and RTN for procedure calls and procedure returns respectively.
+
+// TODO ident funtion
+//  TODO must emit CAL and RTN for procedure calls and procedure returns respectively.
+// TODO Error: call must be followed by a procedure identifier
+// TODDO W4 introduces new failure modes
+/*
+around procedure declarations (nested declarations, scope violations, calls to undeclared
+procedures) that may require additional custom error messages.
+*/
+// To submit
+/*A required set of 3 error-case pairs demonstrating that your program correctly
+14
+catches the new HW4 errors introduced by the procedure-declaration and call grammar
+extensions. Do not submit error-case pairs for the errors that were already required in
+HW3
+*/
+/*The 3 required error-case pairs must cover, at a minimum, the following
+HW4-specific errors from Section 7.4:
+1. procedure and call keywords must be followed by identifier —
+triggered by a procedure or call keyword that is not immediately followed
+by an identifier token.
+2. procedure declarations must be followed by a semicolon —
+triggered by omitting the trailing ; after a procedure’s body.
+3. call must be followed by a procedure identifier — triggered by
+calling an identifier whose symbol-table entry is not a procedure (e.g., a
+variable or constant)
+*/
+// In total, this submission component contains 6 files
