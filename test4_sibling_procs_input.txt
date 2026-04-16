@@ -1,0 +1,19 @@
+var a, b;
+procedure p;
+var x;
+begin
+x := 1;
+a := x;
+end;
+procedure q;
+var y;
+begin
+y := 2;
+b := y;
+end;
+begin
+call p;
+call q;
+write a;
+write b;
+end.

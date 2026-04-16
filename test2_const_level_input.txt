@@ -1,0 +1,13 @@
+const k = 10;
+var a;
+procedure p;
+const c = 5;
+var y;
+begin
+y := c + k;
+end;
+begin
+a := k;
+call p;
+write a;
+end.

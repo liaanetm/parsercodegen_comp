@@ -1,0 +1,1 @@
+Error: procedure and call keywords must be followed by identifier

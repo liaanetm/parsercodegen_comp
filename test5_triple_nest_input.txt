@@ -1,0 +1,23 @@
+var g;
+procedure a;
+var v1;
+procedure b;
+var v2;
+procedure c;
+var v3;
+begin
+v3 := g + v1 + v2;
+end;
+begin
+v2 := 2;
+call c;
+end;
+begin
+v1 := 1;
+call b;
+end;
+begin
+g := 10;
+call a;
+write g;
+end.

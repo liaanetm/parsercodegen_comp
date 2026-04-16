@@ -1,0 +1,8 @@
+var a;
+procedure ;
+begin
+a := 1;
+end;
+begin
+a := 2;
+end.

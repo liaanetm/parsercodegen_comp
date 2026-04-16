@@ -1,0 +1,10 @@
+var a;
+procedure setA;
+begin
+a := 99;
+end;
+begin
+a := 0;
+call setA;
+write a;
+end.

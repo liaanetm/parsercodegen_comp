@@ -1,0 +1,17 @@
+var x;
+procedure a;
+var y;
+procedure b;
+var z;
+begin
+z := x + y;
+end;
+begin
+y := 3;
+call b;
+end;
+begin
+x := 5;
+call a;
+write x;
+end.
