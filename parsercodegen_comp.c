@@ -1069,6 +1069,8 @@ void statement()
     getNextToken();
 
     condition();
+    if (errorFlag == 1)
+      return;
 
     int jpcIndex = cx;
     emit(8, 0, 0); // JPC placeholder
@@ -1100,6 +1102,8 @@ void statement()
 
       getNextToken();
       statement(); // else-block
+      if (errorFlag == 1)
+        return;
 
       // JMP should jump to after else
       instructions[jmpIndex][2] = cx * 3;
@@ -1156,7 +1160,7 @@ void statement()
     emit(7, 0, loopIndex);
     strcpy(nameOP_storage[nameOPcounter], "JMP");
     nameOPcounter++;
-
+    // instructions[jpcIndex][2] = cx *3;
     instructions[jpcIndex][2] = cx; // Target instruction's M field is updated
 
     // Checks for od reserved word
@@ -1374,7 +1378,7 @@ void constDeclaration()
       }
 
       // If all previous checks are passed, constant gets inserted into the symbol table
-      insertSymbolTable(1, identName, tokenList[tokenCounter + 1], level, 0, 0);
+      insertSymbolTable(1, identName, tokenList[tokenCounter + 1], 0, 0, 0);
       getNextToken();
 
     } while (tokenList[tokenCounter] == commasym); // Continues checking in case there are multiple constants declared
@@ -1530,6 +1534,10 @@ void printInst(FILE *op)
 
 // {} -> loop
 // [] -> if condition
+/*Duplicate name check in procedure_declaration() —
+you're not checking if the procedure name is already declared before inserting.
+Add a symbolTableCheck call and error 3 if it's already there.
+*/
 // PROCEDURE-DECLARATION function
 void procedure_declaration()
 {
@@ -1556,6 +1564,13 @@ void procedure_declaration()
       return;
     }
     getNextToken();
+    if (symbolTableCheck(identName) != -1)
+    {
+      printf("Error: symbol name has already been declared");
+      strcpy(errorMessage, "Error: symbol name has already been declared");
+      errorFlag = 1;
+      return;
+    }
     insertSymbolTable(3, identName, 0, level, cx * 3, 0);
     level++;
     block();
