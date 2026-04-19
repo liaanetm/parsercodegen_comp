@@ -3,7 +3,7 @@ Assignment:
 HW4 - Parser/Code Generator Complete Version for PL/0
       (procedures + lexicographical level management)
 
-Author(s): <Full Name 1>, <Full Name 2>
+Author(s): Lianet Martin, Nicole Baez Espinosa
 
 Language: C (only)
 
@@ -980,6 +980,7 @@ void term()
 // Statement
 void statement()
 {
+  
   // Checks if token is an identifier
   if (tokenList[tokenCounter] == identsym)
   {
@@ -1025,6 +1026,58 @@ void statement()
     nameOPcounter++;
     return;
   }
+
+  // Checks if token is the call keyword
+  if(tokenList[tokenCounter] == callsym)
+  {
+    //Gets next token
+    getNextToken();
+    
+    //Checks if token is an identifier, otherwise error message is triggered
+    if(tokenList[tokenCounter] != identsym)
+    {
+      printf("Error: procedure and call keywords must be followed by identifier");
+      strcpy(errorMessage, "Error: procedure and call keywords must be followed by identifier");
+      errorFlag = 1;
+
+      return;
+
+
+    }
+
+    //Finds the index of the symbol table by name
+    int symIndex = symbolTableCheck(nameTable[tokenList[tokenCounter + 1]]);
+
+    //Symbol not found
+    if(symIndex == -1)
+    {
+      printf("Error: undeclared identifier");
+      strcpy(errorMessage, "Error: undeclared identifier");
+      errorFlag = 1;
+      return;
+    }
+
+    //Symbol is not a procedure
+    if(symbolTable[symIndex].kind != 3)
+    {
+      printf("Error: call must be followed by a procedure identifier");
+      strcpy(errorMessage, "Error: call must be followed by a procedure identifier");
+      errorFlag = 1;
+      return;
+
+    }
+
+    //CAL instruction is emitted
+    emit(5, level - symbolTable[symIndex].level, symbolTable[symIndex].addr);
+    strcpy(nameOP_storage[nameOPcounter], "CAL");
+    nameOPcounter++;
+
+    //Gets next token
+    getNextToken();
+
+    return;
+  }
+
 
   // Checks if token is the begin keyword
   if (tokenList[tokenCounter] == beginsym)
@@ -1417,7 +1470,7 @@ void block()
 
   // Emit JMP to skip over any procedure bodies that follow
   int jmpIdx = cx;
-  emit(7, 0, 0); // JMP placeholder – backpatched below
+  emit(7, 0, 0); // JMP placeholder, backpatched below
   strcpy(nameOP_storage[nameOPcounter], "JMP");
   nameOPcounter++;
 
