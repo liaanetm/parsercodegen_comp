@@ -110,7 +110,7 @@ char nameOP_storage[strmax + 1][4] = {""};  // Stores the names of the OP code i
 int nameOPcounter = 0;                      // Keeps track of the OP code names
 int errorFlag = 0;                          // Global flag that turns on whenever an error occurs
 char errorMessage[100];                     // Stores error messages
-int level = 0;
+int level = 0;                              // Global level variable declared to show correct scope
 
 // Function prototypes
 void program();
@@ -148,10 +148,13 @@ int main(int argc, char *argv[])
     return 1;
   }
 
+  // Calls scanner
   scanner(fp);
 
+  // Recrusive Descent parsing begins
   program();
 
+  // Opens the file
   FILE *op = fopen("elf.txt", "w");
 
   if (errorFlag == 1)
@@ -160,6 +163,7 @@ int main(int argc, char *argv[])
   }
   else
   {
+    // Prints instructions
     printInst(op);
   }
 
@@ -980,7 +984,7 @@ void term()
 // Statement
 void statement()
 {
-  
+
   // Checks if token is an identifier
   if (tokenList[tokenCounter] == identsym)
   {
@@ -1028,28 +1032,26 @@ void statement()
   }
 
   // Checks if token is the call keyword
-  if(tokenList[tokenCounter] == callsym)
+  if (tokenList[tokenCounter] == callsym)
   {
-    //Gets next token
+    // Gets next token
     getNextToken();
-    
-    //Checks if token is an identifier, otherwise error message is triggered
-    if(tokenList[tokenCounter] != identsym)
+
+    // Checks if token is an identifier, otherwise error message is triggered
+    if (tokenList[tokenCounter] != identsym)
     {
       printf("Error: procedure and call keywords must be followed by identifier");
       strcpy(errorMessage, "Error: procedure and call keywords must be followed by identifier");
       errorFlag = 1;
 
       return;
-
-
     }
 
-    //Finds the index of the symbol table by name
+    // Finds the index of the symbol table by name
     int symIndex = symbolTableCheck(nameTable[tokenList[tokenCounter + 1]]);
 
-    //Symbol not found
-    if(symIndex == -1)
+    // Symbol not found
+    if (symIndex == -1)
     {
       printf("Error: undeclared identifier");
       strcpy(errorMessage, "Error: undeclared identifier");
@@ -1057,27 +1059,25 @@ void statement()
       return;
     }
 
-    //Symbol is not a procedure
-    if(symbolTable[symIndex].kind != 3)
+    // Symbol is not a procedure
+    if (symbolTable[symIndex].kind != 3)
     {
       printf("Error: call must be followed by a procedure identifier");
       strcpy(errorMessage, "Error: call must be followed by a procedure identifier");
       errorFlag = 1;
       return;
-
     }
 
-    //CAL instruction is emitted
+    // CAL instruction is emitted
     emit(5, level - symbolTable[symIndex].level, symbolTable[symIndex].addr);
     strcpy(nameOP_storage[nameOPcounter], "CAL");
     nameOPcounter++;
 
-    //Gets next token
+    // Gets next token
     getNextToken();
 
     return;
   }
-
 
   // Checks if token is the begin keyword
   if (tokenList[tokenCounter] == beginsym)
@@ -1587,19 +1587,19 @@ void printInst(FILE *op)
 
 // {} -> loop
 // [] -> if condition
-/*Duplicate name check in procedure_declaration() —
-you're not checking if the procedure name is already declared before inserting.
-Add a symbolTableCheck call and error 3 if it's already there.
-*/
+
 // PROCEDURE-DECLARATION function
 void procedure_declaration()
 {
 
   char identName[12];
 
+  // Checks for procedure keyword
   while (tokenList[tokenCounter] == procsym)
   {
     getNextToken();
+
+    // Error message if it's not an identifier
     if (tokenList[tokenCounter] != identsym)
     {
       printf("Error: procedure and call keywords must be followed by identifier");
@@ -1609,6 +1609,8 @@ void procedure_declaration()
     }
     strcpy(identName, nameTable[tokenList[tokenCounter + 1]]);
     getNextToken();
+
+    // Checks for the semicolon
     if (tokenList[tokenCounter] != semicolonsym)
     {
       printf("Error: procedure declarations must be followed by a semicolon");
@@ -1617,6 +1619,8 @@ void procedure_declaration()
       return;
     }
     getNextToken();
+
+    // Checks if the identifier name is already in the table
     if (symbolTableCheck(identName) != -1)
     {
       printf("Error: symbol name has already been declared");
@@ -1624,15 +1628,26 @@ void procedure_declaration()
       errorFlag = 1;
       return;
     }
+    // Inserts into symbol table with the correct level
     insertSymbolTable(3, identName, 0, level, cx * 3, 0);
+
+    // Global level is incremented
     level++;
+
     block();
+
+    // Global level is decremented
     level--;
+
     if (errorFlag == 1)
       return;
+
     emit(2, 0, 0);
     strcpy(nameOP_storage[nameOPcounter], "OPR");
+
     nameOPcounter++;
+
+    // Checks for semicolon
     if (tokenList[tokenCounter] != semicolonsym)
     {
       printf("Error: procedure declarations must be followed by a semicolon");
@@ -1643,31 +1658,3 @@ void procedure_declaration()
     getNextToken();
   }
 }
-
-// TODO ident funtion
-//  TODO must emit CAL and RTN for procedure calls and procedure returns respectively.
-// TODO Error: call must be followed by a procedure identifier
-// TODDO W4 introduces new failure modes
-/*
-around procedure declarations (nested declarations, scope violations, calls to undeclared
-procedures) that may require additional custom error messages.
-*/
-// To submit
-/*A required set of 3 error-case pairs demonstrating that your program correctly
-14
-catches the new HW4 errors introduced by the procedure-declaration and call grammar
-extensions. Do not submit error-case pairs for the errors that were already required in
-HW3
-*/
-/*The 3 required error-case pairs must cover, at a minimum, the following
-HW4-specific errors from Section 7.4:
-1. procedure and call keywords must be followed by identifier —
-triggered by a procedure or call keyword that is not immediately followed
-by an identifier token.
-2. procedure declarations must be followed by a semicolon —
-triggered by omitting the trailing ; after a procedure’s body.
-3. call must be followed by a procedure identifier — triggered by
-calling an identifier whose symbol-table entry is not a procedure (e.g., a
-variable or constant)
-*/
-// In total, this submission component contains 6 files
